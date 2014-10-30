@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: UBMGenerator
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: userbehaviormodel.Activator
+Import-Package: mapebundle.services,
+ org.osgi.framework;version="1.3.0",
+ org.osgi.util.tracker,
+ parameterobjects.objectclass
+Export-Package: userbehaviormodel
+Require-Bundle: UBMGeneratorservice;bundle-version="1.0.0"
+
