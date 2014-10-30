@@ -1,7 +1,9 @@
 package agents;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 
 import org.osgi.framework.BundleActivator;
@@ -38,51 +40,58 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext bundleContext) throws Exception {
 		Activator.context = null;
 	}
-	
+
 	private void makeAgent()
 	{
-		BufferedReader in;
-		try {
-			in = new BufferedReader(new FileReader("/data/agentSpec.txt"));
+		URL configURL = context.getBundle().getResource("/agentSpec.txt");
 
-			String s;
-			while ((s = in.readLine()) != null) {
-				if(s.startsWith("//"))
-					continue;
-				String[] spec;
-				spec = s.split("\t");
-		
-				if(spec[1].equals("Jeep"))
-				{
-					Jeep ag = new Jeep(spec[0], spec[1], Double.parseDouble(spec[2]),
-							Double.parseDouble(spec[3]),Double.parseDouble(spec[4])
-							,Double.parseDouble(spec[5]),Double.parseDouble(spec[6]),Double.parseDouble(spec[7]),
-							Double.parseDouble(spec[8]),Double.parseDouble(spec[9]),Double.parseDouble(spec[10])
-							,Double.parseDouble(spec[11]),
-							Double.parseDouble(spec[12]),Double.parseDouble(spec[13]),
-							Double.parseDouble(spec[14]),
-							Integer.parseInt(spec[15]), Integer.parseInt(spec[16]));
-					agentList.add(ag);
+		if (configURL != null) {
+			InputStream input = null;
+			try {
+				input = configURL.openStream();
+
+				BufferedReader br = new BufferedReader(new InputStreamReader(input));
+
+				String s;
+				while ((s = br.readLine()) != null) {
+
+					if(s.startsWith("//"))
+						continue;
+					String[] spec;
+					spec = s.split("\t");
+
+					if(spec[1].equals("Jeep"))
+					{
+						Jeep ag = new Jeep(spec[0], spec[1], Double.parseDouble(spec[2]),
+								Double.parseDouble(spec[3]),Double.parseDouble(spec[4])
+								,Double.parseDouble(spec[5]),Double.parseDouble(spec[6]),Double.parseDouble(spec[7]),
+								Double.parseDouble(spec[8]),Double.parseDouble(spec[9]),Double.parseDouble(spec[10])
+								,Double.parseDouble(spec[11]),
+								Double.parseDouble(spec[12]),Double.parseDouble(spec[13]),
+								Double.parseDouble(spec[14]),
+								Integer.parseInt(spec[15]), Integer.parseInt(spec[16]));
+						agentList.add(ag);
+					}
+
+					else
+					{
+						BaseAgent ag = new BaseAgent(spec[0], spec[1], Double.parseDouble(spec[2]),
+								Double.parseDouble(spec[3]),Double.parseDouble(spec[4])
+								,Double.parseDouble(spec[5]),Double.parseDouble(spec[6]),Double.parseDouble(spec[7]),
+								Double.parseDouble(spec[8]),Double.parseDouble(spec[9]),Double.parseDouble(spec[10])
+								,Double.parseDouble(spec[11]),
+								Double.parseDouble(spec[12]),Double.parseDouble(spec[13]),
+								Double.parseDouble(spec[14]),
+								Integer.parseInt(spec[15]), Integer.parseInt(spec[16]));
+						agentList.add(ag);
+					}
 				}
-				
-				else
-				{
-					BaseAgent ag = new BaseAgent(spec[0], spec[1], Double.parseDouble(spec[2]),
-							Double.parseDouble(spec[3]),Double.parseDouble(spec[4])
-							,Double.parseDouble(spec[5]),Double.parseDouble(spec[6]),Double.parseDouble(spec[7]),
-							Double.parseDouble(spec[8]),Double.parseDouble(spec[9]),Double.parseDouble(spec[10])
-							,Double.parseDouble(spec[11]),
-							Double.parseDouble(spec[12]),Double.parseDouble(spec[13]),
-							Double.parseDouble(spec[14]),
-							Integer.parseInt(spec[15]), Integer.parseInt(spec[16]));
-					agentList.add(ag);
-				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-	}
-	
 
+
+	}
 }
