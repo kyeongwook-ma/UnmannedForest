@@ -87,50 +87,84 @@ public class EnvironmentsServiceImp implements EnvironmentsService{
 
 	public void initEnvironment() {
 
-		URL configURL = context.getBundle().getResource("/cellSpec.txt");
+		String cellSpecs[] = new String[] {
+				"0	0	Field	Cloudy	10	N	5	Low",
+				"0	1	Field	Cloudy	8	N	8	High",
+				"0	2	Mountain	Rainy	7	N	15	Low",
+				"1	0	Field	Cloudy	11	N	5	Low",
+				"1	1	Lake	Cloudy	4	N	18	Medium",
+				"1	2	Mountain	Rainy	3	N	21	Medium",
+				"2	0	River	Sunny	13	N	13	Low",
+				"2	1	River	Sunny	16	N	16	Medium",
+				"2	2	Field	Cloudy	11	N	11	High"
+		};
 
-		if (configURL != null) {
-			InputStream input = null;
-			try {
-				input = configURL.openStream();
+		for(String s : cellSpecs) {
+			String[] cellSpec;
+			cellSpec = s.split("\t");
 
-				BufferedReader br = new BufferedReader(new InputStreamReader(input));
+			// int x, int y, String feature, String condition, double
+			// windVelocity, String windDirection, String density
+			ForestCell fc = new ForestCell(Integer.parseInt(cellSpec[0]),
+					Integer.parseInt(cellSpec[1]), cellSpec[2],
+					cellSpec[3], Double.parseDouble(cellSpec[4]),
+					cellSpec[5], Double.parseDouble(cellSpec[6]),
+					cellSpec[7]
+					);
+			cellList.add(fc);
 
-				String s;
-				while ((s = br.readLine()) != null) {
-					String[] cellSpec;
-					cellSpec = s.split("\t");
-
-					// int x, int y, String feature, String condition, double
-					// windVelocity, String windDirection, String density
-					ForestCell fc = new ForestCell(Integer.parseInt(cellSpec[0]),
-							Integer.parseInt(cellSpec[1]), cellSpec[2],
-							cellSpec[3], Double.parseDouble(cellSpec[4]),
-							cellSpec[5], Double.parseDouble(cellSpec[6]),
-							cellSpec[7]
-							);
-					cellList.add(fc);
-
-					for(int i=0; i<9;i++)
-					{
-						drawEnvironment(i, (ForestCell)cellList.get(i));
-					}
-
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-
-			try {
-				input.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
+			
 		}
 
-		
+		for(int i=0; i<9;i++)
+		{
+			drawEnvironment(i, (ForestCell)cellList.get(i));
+		}
+
+
+
+
+		//		URL configURL = context.getBundle().getResource("/cellSpec.txt");
+		//
+		//		if (configURL != null) {
+		//			InputStream input = null;
+		//			try {
+		//				input = configURL.openStream();
+		//
+		//				BufferedReader br = new BufferedReader(new InputStreamReader(input));
+		//
+		//				String s;
+		//				while ((s = br.readLine()) != null) {
+		//					String[] cellSpec;
+		//					cellSpec = s.split("\t");
+		//
+		//					// int x, int y, String feature, String condition, double
+		//					// windVelocity, String windDirection, String density
+		//					ForestCell fc = new ForestCell(Integer.parseInt(cellSpec[0]),
+		//							Integer.parseInt(cellSpec[1]), cellSpec[2],
+		//							cellSpec[3], Double.parseDouble(cellSpec[4]),
+		//							cellSpec[5], Double.parseDouble(cellSpec[6]),
+		//							cellSpec[7]
+		//							);
+		//					cellList.add(fc);
+		//
+		//					for(int i=0; i<9;i++)
+		//					{
+		//						drawEnvironment(i, (ForestCell)cellList.get(i));
+		//					}
+		//
+		//				}
+		//			} catch (Exception e) {
+		//				e.printStackTrace();
+		//			}
+		//
+		//
+		//			try {
+		//				input.close();
+		//			} catch (IOException e) {
+		//				e.printStackTrace();
+		//			}
+
 	}
 
 
