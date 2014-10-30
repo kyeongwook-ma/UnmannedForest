@@ -4,24 +4,31 @@ import hostactivator.HostActivator;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
 
-
+import org.osgi.framework.BundleContext;
 
 import environments.service.EnvironmentsService;
 import environments.variable.ForestCell;
 
 public class EnvironmentsServiceImp implements EnvironmentsService{
-	
+
 	ArrayList cellList;
 	private double monitoringDistance = 100;
-	public EnvironmentsServiceImp(ArrayList cellList) {
-		// TODO Auto-generated constructor stub
+	private BundleContext context;
+
+	public EnvironmentsServiceImp(BundleContext context, ArrayList cellList) {
+
+		this.context = context;
 		this.cellList = cellList;
-		
+
 	}
 
 	public ArrayList getCellList() {
@@ -52,74 +59,90 @@ public class EnvironmentsServiceImp implements EnvironmentsService{
 				//fc.getWeather().setVisibility(3);
 				//fc.getWeather().setVisibility(10);
 			}
-			
+
 			int v = new Random().nextInt(10);
-			
+
 			if(v == 1)
 			{
 				fc.getWeather().setVisibility(3);
 			}
 			else
 				fc.getWeather().setVisibility(10);
-			
+
 			int w = new Random().nextInt(10);
-			
+
 			if(w == 1)
 			{
 				fc.getWeather().getWind().setVelocity(25);
 			}
 			else
 				fc.getWeather().getWind().setVelocity(5);
-			
-			
-//		MainView.drawEnvironment();
+
+
+			//		MainView.drawEnvironment();
 			drawEnvironment(i, fc);
 		}
 
 	}
 
 	public void initEnvironment() {
-		// TODO Auto-generated method stub
-		BufferedReader in;
-		try {
-			in = new BufferedReader(new FileReader("/data/cellSpec.txt"));
 
-			String s;
-			while ((s = in.readLine()) != null) {
-				String[] cellSpec;
-				cellSpec = s.split("\t");
+		URL configURL = context.getBundle().getResource("/cellSpec.txt");
 
-				// int x, int y, String feature, String condition, double
-				// windVelocity, String windDirection, String density
-				ForestCell fc = new ForestCell(Integer.parseInt(cellSpec[0]),
-						Integer.parseInt(cellSpec[1]), cellSpec[2],
-						cellSpec[3], Double.parseDouble(cellSpec[4]),
-						cellSpec[5], Double.parseDouble(cellSpec[6]),
-						cellSpec[7]
-						);
-				cellList.add(fc);
-				
+		if (configURL != null) {
+			InputStream input = null;
+			try {
+				input = configURL.openStream();
+
+				BufferedReader br = new BufferedReader(new InputStreamReader(input));
+
+				String s;
+				while ((s = br.readLine()) != null) {
+					String[] cellSpec;
+					cellSpec = s.split("\t");
+
+					// int x, int y, String feature, String condition, double
+					// windVelocity, String windDirection, String density
+					ForestCell fc = new ForestCell(Integer.parseInt(cellSpec[0]),
+							Integer.parseInt(cellSpec[1]), cellSpec[2],
+							cellSpec[3], Double.parseDouble(cellSpec[4]),
+							cellSpec[5], Double.parseDouble(cellSpec[6]),
+							cellSpec[7]
+							);
+					cellList.add(fc);
+
+					for(int i=0; i<9;i++)
+					{
+						drawEnvironment(i, (ForestCell)cellList.get(i));
+					}
+
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+
+			try {
+				input.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 		}
-		for(int i=0; i<9;i++)
-		{
-			drawEnvironment(i, (ForestCell)cellList.get(i));
-		}
-	}
-	
-	
-	private void drawEnvironment (int i,ForestCell fc) {
+
 		
+	}
+
+
+	private void drawEnvironment (int i,ForestCell fc) {
+
 		Object drawUI = HostActivator.getService("selab.dev.unmannedforestmonitor.uiservice.DrawService");
 		Class[] parameterDrawEnv = {Integer.class,Object.class};
 		Object[] parameterDrawEnvObj = {new Integer(i),fc};
-		
+
 		try {
 			Method drawEnvironments = drawUI.getClass().getDeclaredMethod("drawEnvironments", parameterDrawEnv);
-			
+
 			try {
 				drawEnvironments.invoke(drawUI, parameterDrawEnvObj);
 			} catch (IllegalAccessException e) {

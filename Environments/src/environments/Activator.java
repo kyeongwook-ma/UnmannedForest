@@ -22,7 +22,7 @@ public class Activator implements BundleActivator {
 	 */
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
-		EnvironmentsService environmentsService = new EnvironmentsServiceImp(cellList);
+		EnvironmentsService environmentsService = new EnvironmentsServiceImp(context, cellList);
 		context.registerService(EnvironmentsService.class.getName(),environmentsService , null);
 		environmentsService.initEnvironment();
 	}
