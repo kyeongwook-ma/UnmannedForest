@@ -31,26 +31,17 @@ public class AgentInstances implements AgentInstancesService{
 		this.agentList = agentList;
 	}
 
-	public  void printAgents() {
-		//		for(BaseAgent agent : agentList)
-		//		{
-		//			LoggerUtil.write(LoggerUtil.LOGPANE, agent.getAgentType().name());
-		//		}
-	}
+	
 
 	public  ArrayList getAgentIDList() {
 		ArrayList idList = new ArrayList();
-		//		for(BaseAgent a : agentList)
-		//		{
-		//			idList.add(a.getAgentID());
-		//		}
+	
 		for(int i=0;i<agentList.size();i++)
 		{
 			BaseAgent a = (BaseAgent) agentList.get(i);
 			idList.add(a.getAgentID());
 		}
 
-		//idList.add(null);
 
 		return idList;
 	}
@@ -58,14 +49,7 @@ public class AgentInstances implements AgentInstancesService{
 	public  Object getAgent(String id)
 	{
 
-		//		for(BaseAgent a : agentList)
-		//		{
-		//			if(a.getAgentID().equals(id))
-		//			{
-		//				return a;
-		//			}
-		//		}
-		//		
+	
 		for(int i=0;i<agentList.size();i++)
 		{
 			BaseAgent a = (BaseAgent) agentList.get(i);
@@ -81,7 +65,7 @@ public class AgentInstances implements AgentInstancesService{
 	public  double getMaxFuelCost()
 	{
 		double retVal = 0.0;
-		//		for(BaseAgent a : agentList)
+
 		for(int i=0;i<agentList.size();i++)
 		{
 			BaseAgent a = (BaseAgent) agentList.get(i);
@@ -95,7 +79,7 @@ public class AgentInstances implements AgentInstancesService{
 	public  double getMinFuelCost()
 	{
 		double retVal = 1000.0;
-		//		for(BaseAgent a : agentList)
+
 		for(int i=0;i<agentList.size();i++)
 		{
 			BaseAgent a = (BaseAgent) agentList.get(i);
@@ -109,6 +93,7 @@ public class AgentInstances implements AgentInstancesService{
 	public  double getMaxDeprecationCost()
 	{
 		double retVal = 0.0;
+		
 		for(int i=0;i<agentList.size();i++)
 		{
 			BaseAgent a = (BaseAgent) agentList.get(i);
@@ -122,7 +107,7 @@ public class AgentInstances implements AgentInstancesService{
 	public  double getMinDeprecationCost()
 	{
 		double retVal = 1000.0;
-		//		for(BaseAgent a : agentList)
+
 		for(int i=0;i<agentList.size();i++)
 		{
 			BaseAgent a = (BaseAgent) agentList.get(i);
@@ -254,53 +239,13 @@ public class AgentInstances implements AgentInstancesService{
 		}
 
 
-		//		URL configURL = context.getBundle().getResource("/agentSpec.txt");
-		//
-		//		if (configURL != null) {
-		//			InputStream input = null;
-		//			try {
-		//				input = configURL.openStream();
-		//
-		//				BufferedReader br = new BufferedReader(new InputStreamReader(input));
-		//
-		//				String s;
-		//				while ((s = br.readLine()) != null) {
-		//
-		//					if(s.startsWith("//"))
-		//						continue;
-		//					String[] spec;
-		//					spec = s.split("\t");
-		//
-		//					if(spec[1].equals("Jeep"))
-		//					{
-		//						Jeep ag = new Jeep(spec[0], spec[1], Double.parseDouble(spec[2]),
-		//								Double.parseDouble(spec[3]),Double.parseDouble(spec[4])
-		//								,Double.parseDouble(spec[5]),Double.parseDouble(spec[6]),Double.parseDouble(spec[7]),
-		//								Double.parseDouble(spec[8]),Double.parseDouble(spec[9]),Double.parseDouble(spec[10])
-		//								,Double.parseDouble(spec[11]),
-		//								Double.parseDouble(spec[12]),Double.parseDouble(spec[13]),
-		//								Double.parseDouble(spec[14]),
-		//								Integer.parseInt(spec[15]), Integer.parseInt(spec[16]));
-		//						agentList.add(ag);
-		//					}
-		//
-		//					else
-		//					{
-		//						BaseAgent ag = new BaseAgent(spec[0], spec[1], Double.parseDouble(spec[2]),
-		//								Double.parseDouble(spec[3]),Double.parseDouble(spec[4])
-		//								,Double.parseDouble(spec[5]),Double.parseDouble(spec[6]),Double.parseDouble(spec[7]),
-		//								Double.parseDouble(spec[8]),Double.parseDouble(spec[9]),Double.parseDouble(spec[10])
-		//								,Double.parseDouble(spec[11]),
-		//								Double.parseDouble(spec[12]),Double.parseDouble(spec[13]),
-		//								Double.parseDouble(spec[14]),
-		//								Integer.parseInt(spec[15]), Integer.parseInt(spec[16]));
-		//						agentList.add(ag);
-		//					}
-		//				}
-		//			} catch (Exception e) {
-		//				// TODO Auto-generated catch block
-		//				e.printStackTrace();
-		//			}
+		
+	}
+
+	@Override
+	public void printAgents() {
+		// TODO Auto-generated method stub
+		
 	}
 
 

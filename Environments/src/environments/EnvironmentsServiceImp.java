@@ -25,14 +25,12 @@ public class EnvironmentsServiceImp implements EnvironmentsService{
 	private BundleContext context;
 
 	public EnvironmentsServiceImp(BundleContext context, ArrayList cellList) {
-
 		this.context = context;
 		this.cellList = cellList;
 
 	}
 
 	public ArrayList getCellList() {
-		// TODO Auto-generated method stub
 		return cellList;
 	}
 	public void changeRandomEnvironment()
@@ -79,7 +77,6 @@ public class EnvironmentsServiceImp implements EnvironmentsService{
 				fc.getWeather().getWind().setVelocity(5);
 
 
-			//		MainView.drawEnvironment();
 			drawEnvironment(i, fc);
 		}
 

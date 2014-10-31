@@ -52,14 +52,12 @@ public class ConfigurationScoreCalculator {
 	private HashMap minScoreSet;
 	private ArrayList maxList;
 	private ArrayList minList;
-	
+
 	public ConfigurationScoreCalculator() {
-		// TODO Auto-generated constructor stub
 		agentInstances = (AgentInstancesService) HostActivator.getService(AgentInstancesService.class.getName());
 		EnvironmentsService envService = (EnvironmentsService) HostActivator.getService(EnvironmentsService.class.getName());
 		cellList = envService.getCellList();
 		monitoringDistance = envService.getMonitoringDistance();
-		threadList = new Vector();
 		valueSet = new HashMap();
 		minScoreSet = new HashMap();
 		maxList = new ArrayList();
@@ -71,64 +69,24 @@ public class ConfigurationScoreCalculator {
 		threadList.clear();
 		valueSet.clear();
 		minScoreSet.clear();
-//		cellSize = cellList.size();
-		//cellSize = 9;
-
+		
 		final ICombinatoricsVector AgentCombination = Factory.createVector(agentInstances.getAgentIDList());
 		System.out.println("agnetID " + agentInstances.getAgentIDList().toString());
 		final Generator CombinationGen = Factory.createSimpleCombinationGenerator(AgentCombination, cellSize);
 		System.out.println("Combination Gen : " + CombinationGen.getNumberOfGeneratedObjects());
-		System.out.println("Combination Gen : " + CombinationGen.generateAllObjects().toString());
 		List combinationGenList = CombinationGen.generateAllObjects();
-		
-//		for (final ICombinatoricsVector perm : CombinationGen) {
-//			Threadcount++;
-////		}
-		for(int i=0;i<combinationGenList.size();i++)
-		{
-			Threadcount++;
-		}
-		
-		System.out.println("Tread Count : " + Threadcount);
-		
-//		for (final ICombinatoricsVector perm : CombinationGen) {
-//			final Generator PermutationGen = Factory.createPermutationGenerator(perm);
-//			PermutationThread th = new PermutationThread(PermutationGen);
-//			threadList.add(th);
-//			th.start();
-//		}
-		for(int i=0;i<combinationGenList.size();i++)
+
+		for(int i=0; i < combinationGenList.size(); i++)
 		{
 			final ICombinatoricsVector perm = (ICombinatoricsVector) combinationGenList.get(i);
 			final Generator PermutationGen = Factory.createPermutationGenerator(perm);
 			PermutationThread th = new PermutationThread(PermutationGen);
-			threadList.add(th);
-			th.start();
+			th.run();
 		}
-		
-		while(true)
-		{
-			if (threadList.size() == Threadcount) {
-				
-				for(int i = 0; i < threadList.size(); ++i) {
-			
-					Thread t = (Thread) threadList.get(i);
-							
-					if (t.isAlive()) {
-						synchronized (t) {
-							try {
-								t.wait();
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-					}
-				}
-				return getOptimal();
-			}
-		}
+
+		return getOptimal();
 	}
-	
+
 	private ArrayList getOptimal()
 	{
 		double maxVal = -1;
@@ -137,20 +95,17 @@ public class ConfigurationScoreCalculator {
 		ArrayList retStr = new ArrayList();
 		String minStr = null;
 		Object drawUI = HostActivator.getService("selab.dev.unmannedforestmonitor.uiservice.DrawService");
-		
-		
+
+
 		Iterator it = this.valueSet.keySet().iterator();
-		
+
 		while(it.hasNext())
 		{
 			System.out.println("in firstWhile : get Optimal");
 			ArrayList str = (ArrayList) it.next();
 			ScoreSet sc = (ScoreSet) valueSet.get(str);
-//			LoggerUtil.write(LoggerUtil.LOGPANE,str.toString());
-//			LoggerUtil.write(LoggerUtil.LOGPANE,"Cost:"+ String.format("%.3f",sc.getCost()) +"; Benefit:"+String.format("%.3f",sc.getBenefit())+"; Col.Score:"+String.format("%.3f",sc.getScore()));
 			
-//			drawSelected(String agents,String scores);
-			
+
 			Class[] drawAvailableParm = {String.class,String.class};
 			String scoreString  = "Cost:";
 			String temp = String.format("%.3f", new Double[] {new Double(sc.getScore())});
@@ -161,18 +116,16 @@ public class ConfigurationScoreCalculator {
 			scoreString += temp;
 			temp = String.format("%.3f",new Double[] {new Double(sc.getScore())});
 			scoreString += temp;
-			
+
 			Object[] drawAvailabeParmObj = {str.toString(),scoreString};
-			
+
 			try {
 				Method drawAvailable = drawUI.getClass().getDeclaredMethod("drawAvailable", drawAvailableParm);
 				try {
 					drawAvailable.invoke(drawUI, drawAvailabeParmObj);
 				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (InvocationTargetException e) {
 					// TODO Auto-generated catch block
@@ -185,17 +138,16 @@ public class ConfigurationScoreCalculator {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			
-			
+
+
+
 			if(maxVal < (((ScoreSet) this.valueSet.get(str)).getScore()))
 			{
 				System.out.println("in firstIF : get Optimal");
 				retStr.clear();
 				maxVal = ((ScoreSet) this.valueSet.get(str)).getScore();
 				maxSet = (ScoreSet) this.valueSet.get(str);
-//				for(String s :str)
-//					retStr.add(AgentInstances.getAgent(s));
+			
 				for(int i=0;i<str.size();i++)
 				{
 					String s = (String) str.get(i);
@@ -205,7 +157,7 @@ public class ConfigurationScoreCalculator {
 				System.out.println(maxSet.toString());
 			}
 		}
-		
+
 		Iterator minIt = this.minScoreSet.keySet().iterator();
 		while(minIt.hasNext())
 		{
@@ -218,16 +170,12 @@ public class ConfigurationScoreCalculator {
 				minStr = l.toString();
 			}
 		}
-		
+
 		CurrentScore.OptimalScore = new Double(maxVal);
 		CurrentScore.OptimalSet = maxSet;
-		
 		CurrentScore.optimalAgentList = retStr;
-		
-		/*LoggerUtil.write("Dynamic Cost:"+CurrentScore.OptimalSet.getCost());
-		LoggerUtil.write("Dynamic Benefit:"+CurrentScore.OptimalSet.getBenefit());
-		LoggerUtil.write("Dynamic Score:"+CurrentScore.OptimalScore);
-		LoggerUtil.write("Dynamic Conf:"+CurrentScore.optimalAgentList);*/
+
+	
 		Class[] drawSelectedParm = {String.class,String.class};
 		String scoreString  = "Cost:";
 		String temp = String.format("%.3f", new Double[] {new Double(maxSet.getCost())});
@@ -238,32 +186,26 @@ public class ConfigurationScoreCalculator {
 		scoreString += temp;
 		temp = String.format("%.3f",new Double[] {CurrentScore.OptimalScore});
 		scoreString += temp;
-//		
 
 		Object[] drawSelectedParmObj = {retStr.toString(),scoreString};
-		
+
 		try {
 			Method drawSelected = drawUI.getClass().getDeclaredMethod("drawSelected", drawSelectedParm);
 			try {
 				drawSelected.invoke(drawUI, drawSelectedParmObj);
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		Class[] drawAgentParm = {Integer.class,String.class,String.class};
 		Method drawAgents;
 		try {
@@ -275,46 +217,38 @@ public class ConfigurationScoreCalculator {
 				try {
 					drawAgents.invoke(drawUI, drawAgentParmObj);
 				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-			
+
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
+
 		System.out.println("Max:"+CurrentScore.OptimalScore);
 		maxList.add(CurrentScore.OptimalScore);
 		System.out.println(MIN+minVal);
 		minList.add(new Double(minVal));
-		//LoggerUtil.write(minStr);
-		
-		//LoggerUtil.write("OPT:"+CurrentScore.optimalAgentList);
 		
 		return retStr;
 	}
-	private class PermutationThread extends Thread implements Runnable
+	private class PermutationThread
 	{
 		Generator PermutationGen;
-		
+
 		public PermutationThread(Generator PermutationGen)
 		{
 			this.PermutationGen = PermutationGen;
 		}
 		public void run() {
-			
+
 			double maxOptimalValue = 0.0;
 			double maxCost = 0.0;
 			double maxBenefit = 0.0;
@@ -324,15 +258,9 @@ public class ConfigurationScoreCalculator {
 			String optimalConf = null;
 			ArrayList agentList = new ArrayList();
 			ArrayList minAgentList = new ArrayList();
+			
 			Iterator it = PermutationGen.iterator();
 
-//			for (ICombinatoricsVector Cperm : PermutationGen) {
-
-				//Logger.write(Cperm);
-				/*if(Cperm.toString().equals("CombinatoricsVector=([JE5, JE1, UAV2, JE3, UAV1, JE2, HE2, HE1, JE6], size=9)"))
-				{
-					Logger.write("here");
-				}*/
 			while(it.hasNext()){
 				ICombinatoricsVector Cperm = (ICombinatoricsVector) it.next();
 				boolean isValidConfiguration = false;
@@ -354,34 +282,29 @@ public class ConfigurationScoreCalculator {
 						isValidConfiguration = false;
 						break;
 					}
-					
-					//COST 占쏙옙占�
+
 					cost = cost + getCost(cell, agent);
-					
-					//BENEFIT 占쏙옙占�
+
 					benefit = benefit + getBenefit(cell, agent);
 				}
-				
+
 				double confValue = getConfValue(cost, benefit);
 				if(confValue > maxOptimalValue && confValue != 0.0)
 				{
 					agentList.clear();
-					/*String outStr = "0:["+Cperm.getValue(0)+","+Cperm.getValue(1)+","+Cperm.getValue(2)+"]"+"\t"+ 
-							"1:["+Cperm.getValue(3)+","+Cperm.getValue(4)+","+Cperm.getValue(5)+"]"+"\t"+
-							"2:["+Cperm.getValue(6)+","+Cperm.getValue(7)+","+Cperm.getValue(8)+"]"+"\t"
-							+ " Cost:" + cost + "\t"+" Benefit:" + benefit + "\n";*/
+					
 					String outStr = Cperm.toString();
 					maxOptimalValue = confValue;
 					maxCost = cost;
 					maxBenefit = benefit;
 					optimalConf = outStr;
-//					for(String s: Cperm)
+
 					for(int i=0; i<Cperm.getSize();i++)
 					{
 						String s = (String) Cperm.getValue(i);
 						agentList.add(s);
 					}
-					
+
 				}
 				if(confValue < minScore)
 				{
@@ -397,16 +320,15 @@ public class ConfigurationScoreCalculator {
 				}
 			}
 			valueSet.put(agentList, new ScoreSet(maxCost/cellSize, maxBenefit/cellSize, maxOptimalValue));
-			/*System.out.println(minCost+","+minBenefit);
-			System.out.println(minAgentList.toString()+","+ minScore);*/
-			minScoreSet.put(minAgentList.toString(), new Double(minScore));
 			
+			minScoreSet.put(minAgentList.toString(), new Double(minScore));
+
 		}
 	}
 
-	
-	
-	
+
+
+
 	private double getCost(ForestCell cell, BaseAgent agent)
 	{
 		if(agent == null)
@@ -414,28 +336,26 @@ public class ConfigurationScoreCalculator {
 			return 1;
 		}
 		double cost = 0.0;
-		
+
 		cost = cost + agent.getFuelCost() + agent.getDeprecationCost() + agent.getSumOfDeviceDeprecation();
-		
+
 		if(cell.getDensity().equals("High") && agent.getAgentType().equals("Jeep"))
 		{
 			cost = cost + agent.getOperatorCost();
 		}
-		
-		//there must be operator in airplane
+
 		if(agent.getAgentType().equals("AirPlane"))
 		{
 			cost = cost + agent.getOperatorCost();
 		}
-		
-		
+
+
 		double nomalizedCost = (cost - agentInstances.getMinCost()) / (agentInstances.getMaxCost() - agentInstances.getMinCost());
-		
-		//Logger.write("c:"+cost+" / nc:"+ nomalizedCost);
-		
+
+
 		return nomalizedCost;
 	}
-	
+
 	private double getBenefit(ForestCell cell, BaseAgent agent)
 	{
 		if(agent == null)
@@ -444,7 +364,7 @@ public class ConfigurationScoreCalculator {
 		}
 		double correctness = agent.getAvgOfSensor();
 		double completeness = 0.0;
-		
+
 		//占쏙옙占싹띰옙
 		if(cell.getFeatureList().contains("Mountain"))
 		{
@@ -462,7 +382,6 @@ public class ConfigurationScoreCalculator {
 
 		else
 		{
-			//占쏙옙철占�
 			if(cell.getWeather().getCondition().equals("Rainy"))
 			{
 				completeness = agent.getRainMovingDistance()/monitoringDistance;
@@ -473,19 +392,16 @@ public class ConfigurationScoreCalculator {
 				completeness = agent.getNormalMovingDistance()/monitoringDistance;
 			}
 		}
-		
+
 		double normalizedBenefit = 0.3 * correctness + 0.7 * completeness;
-		//Logger.write(correctness+":"+completeness+":"+normalizedBenefit);
-		
+
 		return normalizedBenefit;
 	}
 	private double getConfValue(double cost, double benefit) {
 		cost = cost / cellSize;//CellInstances.getCellList().size();
 		benefit = benefit / cellSize;//CellInstances.getCellList().size();
 		double colVal = benefit - cost;
-		
-		//Logger.write(cost +":"+benefit+":"+colVal);
-		
+
 		return colVal;
 	}
 
