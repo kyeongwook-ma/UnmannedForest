@@ -10,9 +10,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import org.paukov.combinatorics.CombinatoricsVector;
 import org.paukov.combinatorics.Factory;
 import org.paukov.combinatorics.Generator;
 import org.paukov.combinatorics.ICombinatoricsVector;
+
 
 
 
@@ -69,22 +71,39 @@ public class ConfigurationScoreCalculator {
 		threadList.clear();
 		valueSet.clear();
 		minScoreSet.clear();
-		
+
 		final ICombinatoricsVector AgentCombination = Factory.createVector(agentInstances.getAgentIDList());
 		System.out.println("agnetID " + agentInstances.getAgentIDList().toString());
 		final Generator CombinationGen = Factory.createSimpleCombinationGenerator(AgentCombination, cellSize);
 		System.out.println("Combination Gen : " + CombinationGen.getNumberOfGeneratedObjects());
 		List combinationGenList = CombinationGen.generateAllObjects();
+		
+		// selectOptimalConfig(combinationGenList);
 
+		/*
+		 * 연산량으로 인해 combination만 출력 
+		 */
+		
+		
+
+		return getOptimal();
+	}
+
+	
+	/*
+	 * 경우의 수가 9^12 으로 연산의 수가 많아
+	 * 모바일에서 구동하는 것은 불가능합니다.
+	 * 해당 알고리즘을 교체할 필요가 있습니다.
+	 */
+	private void selectOptimalConfig(List combinationGenList) {
 		for(int i=0; i < combinationGenList.size(); i++)
 		{
 			final ICombinatoricsVector perm = (ICombinatoricsVector) combinationGenList.get(i);
+
 			final Generator PermutationGen = Factory.createPermutationGenerator(perm);
 			PermutationThread th = new PermutationThread(PermutationGen);
 			th.run();
 		}
-
-		return getOptimal();
 	}
 
 	private ArrayList getOptimal()
@@ -104,7 +123,7 @@ public class ConfigurationScoreCalculator {
 			System.out.println("in firstWhile : get Optimal");
 			ArrayList str = (ArrayList) it.next();
 			ScoreSet sc = (ScoreSet) valueSet.get(str);
-			
+
 
 			Class[] drawAvailableParm = {String.class,String.class};
 			String scoreString  = "Cost:";
@@ -128,18 +147,13 @@ public class ConfigurationScoreCalculator {
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
 				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
-
 
 			if(maxVal < (((ScoreSet) this.valueSet.get(str)).getScore()))
 			{
@@ -147,7 +161,7 @@ public class ConfigurationScoreCalculator {
 				retStr.clear();
 				maxVal = ((ScoreSet) this.valueSet.get(str)).getScore();
 				maxSet = (ScoreSet) this.valueSet.get(str);
-			
+
 				for(int i=0;i<str.size();i++)
 				{
 					String s = (String) str.get(i);
@@ -175,7 +189,7 @@ public class ConfigurationScoreCalculator {
 		CurrentScore.OptimalSet = maxSet;
 		CurrentScore.optimalAgentList = retStr;
 
-	
+
 		Class[] drawSelectedParm = {String.class,String.class};
 		String scoreString  = "Cost:";
 		String temp = String.format("%.3f", new Double[] {new Double(maxSet.getCost())});
@@ -236,7 +250,7 @@ public class ConfigurationScoreCalculator {
 		maxList.add(CurrentScore.OptimalScore);
 		System.out.println(MIN+minVal);
 		minList.add(new Double(minVal));
-		
+
 		return retStr;
 	}
 	private class PermutationThread
@@ -258,7 +272,7 @@ public class ConfigurationScoreCalculator {
 			String optimalConf = null;
 			ArrayList agentList = new ArrayList();
 			ArrayList minAgentList = new ArrayList();
-			
+
 			Iterator it = PermutationGen.iterator();
 
 			while(it.hasNext()){
@@ -292,7 +306,7 @@ public class ConfigurationScoreCalculator {
 				if(confValue > maxOptimalValue && confValue != 0.0)
 				{
 					agentList.clear();
-					
+
 					String outStr = Cperm.toString();
 					maxOptimalValue = confValue;
 					maxCost = cost;
@@ -320,14 +334,11 @@ public class ConfigurationScoreCalculator {
 				}
 			}
 			valueSet.put(agentList, new ScoreSet(maxCost/cellSize, maxBenefit/cellSize, maxOptimalValue));
-			
+
 			minScoreSet.put(minAgentList.toString(), new Double(minScore));
 
 		}
 	}
-
-
-
 
 	private double getCost(ForestCell cell, BaseAgent agent)
 	{
